@@ -1,0 +1,224 @@
+.board-outer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #4caf72;
+  border-radius: 16px;
+  padding: 32px 48px 48px 48px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.board-center-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.board-grid-and-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-board-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.board-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.row-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 4px;
+  margin-top: 0;
+}
+
+.bottom-totals-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-top: 4px;
+}
+
+.column-totals {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin: 0;
+}
+
+.total-cell, .tile {
+  width: 90px;
+  height: 90px;
+  border: 2px solid #222;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  flex-shrink: 0;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  background-clip: padding-box;
+  box-sizing: border-box;
+}
+
+.total-cell {
+  margin: 0;
+}
+
+.total-cell.orange { background: #e5734a; color: #222; }
+.total-cell.green { background: #aee571; color: #222; }
+.total-cell.yellow { background: #ffe082; color: #222; }
+.total-cell.blue { background: #64b5f6; color: #222; }
+.total-cell.purple { background: #b39ddb; color: #222; }
+
+.right-total {
+  margin-left: 0;
+}
+
+.bottom-total {
+  margin-top: 0;
+}
+
+.points {
+  font-weight: bold;
+  color: #222;
+  font-size: 28px;
+}
+
+.voltorbs {
+  color: #222;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.voltorbs .voltorb-img {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.tile {
+  background: repeating-linear-gradient(135deg, #2e7d32 0 50%, #388e3c 50% 100%);
+  background-size: 32px 32px;
+  color: transparent;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.tile:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.tile:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.tile.voltorb {
+  background: #fff;
+  border: 2px solid #e57373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voltorb-img {
+  width: 70px;
+  height: 70px;
+  display: block;
+}
+
+.tile.value-1, .tile.value-2, .tile.value-3 {
+  background-color: #ffb6c1;
+  border: 2px solid #222;
+  box-sizing: border-box;
+  color: #000;
+}
+
+.flipped {
+  background: #ffb6c1 !important;
+  color: #000 !important;
+}
+
+.tile-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.tile-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.tile-front, .tile-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  border-radius: 8px;
+}
+
+.tile-front {
+  background: repeating-linear-gradient(135deg, #2e7d32 0 50%, #388e3c 50% 100%);
+  background-size: 32px 32px;
+}
+
+.tile-back {
+  background: #ffb6c1;
+  color: #000;
+  transform: rotateY(180deg);
+}
+
+/* Remove question mark from unflipped face */
+.tile:not(.flipped) .tile-front {
+  color: transparent;
+}
+
+/* Ensure .flipped class on .tile still works for accessibility */
+.flipped {
+  background: #ffb6c1 !important;
+  color: #000 !important;
+}
+
+.info-box {
+  font-size: 1.3rem;
+}
+
+.game-board-disabled .tile {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.7;
+}
+
+.game-board-disabled .tile:hover {
+  background-color: inherit;
+} 

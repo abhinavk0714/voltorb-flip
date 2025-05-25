@@ -1,0 +1,131 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.app {
+  min-height: 100vh;
+  min-width: 100vw;
+  background: #4caf72;
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.top-info {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.info-box {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 8px 18px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  justify-content: center;
+}
+
+h1 {
+  display: none;
+}
+
+.game-info {
+  display: none;
+}
+
+.error {
+  background: #ffeaea;
+  color: #c0392b;
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin: 16px 0;
+  text-align: center;
+  font-weight: 600;
+  width: 100%;
+  max-width: 400px;
+}
+
+.quit-button {
+  margin-top: 24px;
+  background: #e74c3c;
+  color: #fff;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.quit-button:hover {
+  background: #c0392b;
+}
+
+.board-outer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #4caf72;
+  border-radius: 16px;
+  padding: 32px 48px 48px 48px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+} 
+
+.tile, .total-cell {
+  width: 90px;
+  height: 90px;
+  font-size: 36px;
+}
+
+.voltorb-img {
+  width: 70px;
+  height: 70px;
+}
