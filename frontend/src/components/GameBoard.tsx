@@ -1,6 +1,7 @@
 import React from 'react';
 import './GameBoard.css';
 import voltorbImg from '/voltorb.png';
+const voltorbSmallImg = '/voltorb_small.png';
 
 export interface Tile {
   value: number;
@@ -12,17 +13,27 @@ export interface Total {
   voltorbs: number;
 }
 
+interface MemoData {
+  voltorb: boolean;
+  '1': boolean;
+  '2': boolean;
+  '3': boolean;
+}
+
 interface GameBoardProps {
   board: Tile[][];
   rowTotals: Total[];
   columnTotals: Total[];
   onTileClick: (row: number, col: number) => void;
   disabled?: boolean;
+  memoMode?: boolean;
+  memoData?: MemoData[][];
+  selectedTile?: { row: number; col: number } | null;
 }
 
 const infoColors = ['orange', 'green', 'yellow', 'blue', 'purple'];
 
-const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, onTileClick, disabled }) => {
+const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, onTileClick, disabled, memoMode, memoData, selectedTile }) => {
   if (!board || !rowTotals || !columnTotals) {
     return <div>Loading board...</div>;
   }
@@ -40,8 +51,24 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, o
   // Helper for tile content
   const getTileContent = (tile: Tile) => {
     if (!tile.flipped) return '?';
-    if (tile.value === -1) return <img src={voltorbImg} alt="Voltorb" className="voltorb-img" />;
+    if (tile.value === -1) return <div className="voltorb-pixel-ball" />;
     return tile.value;
+  };
+
+  // Helper for memo mark rendering
+  const renderMemoMarks = (rowIdx: number, colIdx: number) => {
+    if (!memoData || !memoData[rowIdx]) return null;
+    const marks = memoData[rowIdx][colIdx];
+    if (!marks) return null;
+
+    return (
+      <div className="memo-marks">
+        {marks.voltorb && <span className="memo-voltorb memo-top-left"><img src={voltorbSmallImg} alt="Voltorb" className="memo-voltorb-img" /></span>}
+        {marks['1'] && <span className="memo-num memo-num-yellow memo-top-right">1</span>}
+        {marks['2'] && <span className="memo-num memo-num-yellow memo-bottom-left">2</span>}
+        {marks['3'] && <span className="memo-num memo-num-yellow memo-bottom-right">3</span>}
+      </div>
+    );
   };
 
   return (
@@ -51,23 +78,27 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, o
           <div className={`game-board-grid${disabled ? ' game-board-disabled' : ''}`}>
             {board.map((row, rowIdx) => (
               <div className="board-row" key={rowIdx}>
-                {row.map((tile, colIdx) => (
-                  <button
-                    key={colIdx}
-                    className={getTileClass(tile)}
-                    onClick={() => !disabled && onTileClick(rowIdx, colIdx)}
-                    disabled={tile.flipped || disabled}
-                  >
-                    <div className={`tile-inner${tile.flipped ? ' flipped' : ''}`}>
-                      <div className="tile-front">
-                        {/* Unflipped face: no question mark, just blank */}
+                {row.map((tile, colIdx) => {
+                  const isSelected = memoMode && selectedTile && selectedTile.row === rowIdx && selectedTile.col === colIdx;
+                  return (
+                    <button
+                      key={colIdx}
+                      className={getTileClass(tile) + (isSelected ? ' tile-selected' : '')}
+                      onClick={() => !disabled && onTileClick(rowIdx, colIdx)}
+                      disabled={tile.flipped || disabled}
+                    >
+                      <div className={`tile-inner${tile.flipped ? ' flipped' : ''}`}>
+                        <div className="tile-front">
+                          {/* Memo marks on unflipped face */}
+                          {!tile.flipped && renderMemoMarks(rowIdx, colIdx)}
+                        </div>
+                        <div className="tile-back">
+                          {getTileContent(tile)}
+                        </div>
                       </div>
-                      <div className="tile-back">
-                        {getTileContent(tile)}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             ))}
           </div>
@@ -95,4 +126,4 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, o
   );
 };
 
-export default GameBoard; 
+export default GameBoard;
