@@ -4,6 +4,7 @@ import GameBoard from './components/GameBoard'
 import './App.css'
 import { gameService } from './services/gameService'
 import type { GameState } from './services/gameService'
+import CelebrationModal from './components/CelebrationModal'
 
 const MEMO_MARKS = ['voltorb', '1', '2', '3'] as const;
 type MemoMark = typeof MEMO_MARKS[number];
@@ -15,16 +16,30 @@ interface MemoData {
   '3': boolean;
 }
 
+type NewGameResponse = GameState | { reset: true; message: string };
+function isResetResponse(response: unknown): response is { reset: true; message: string } {
+  return (
+    typeof response === 'object' &&
+    response !== null &&
+    'reset' in response &&
+    (response as { reset?: boolean }).reset === true &&
+    'message' in response &&
+    typeof (response as { message?: unknown }).message === 'string'
+  );
+}
+
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [gameOverPhase, setGameOverPhase] = useState<null | 'reveal' | 'reset'>(null)
+  const [messagePhase, setMessagePhase] = useState<null | 'win1' | 'win2' | 'lose1' | 'lose2'>(null)
   const [memoMode, setMemoMode] = useState(false);
   const [memoData, setMemoData] = useState<MemoData[][]>([]);
   const [showMemoMenu, setShowMemoMenu] = useState(false);
   const [selectedMemoMarks, setSelectedMemoMarks] = useState<MemoMark[]>([]);
   const [selectedTile, setSelectedTile] = useState<{ row: number; col: number } | null>(null);
+  const [celebration, setCelebration] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
 
   useEffect(() => {
     startNewGame()
@@ -35,18 +50,23 @@ function App() {
     setError(null)
     setGameOverPhase(null)
     try {
-      const state = await gameService.startNewGame()
-      setGameState(state)
+      const response: NewGameResponse = await gameService.startNewGame()
+      if (isResetResponse(response)) {
+        setCelebration({ show: true, message: response.message });
+        setGameState(null);
+        setIsLoading(false);
+        return;
+      }
+      setGameState(response)
       // Reset memo data for new board
-      setMemoData(Array.from({ length: state.board.length }, () => 
-        Array(state.board[0].length).fill(null).map(() => ({
+      setMemoData(Array.from({ length: response.board.length }, () => 
+        Array(response.board[0].length).fill(null).map(() => ({
           voltorb: false,
           '1': false,
           '2': false,
           '3': false
         }))
       ))
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError('Failed to start new game. Please try again.')
     } finally {
@@ -55,7 +75,7 @@ function App() {
   }
 
   const handleTileClick = async (row: number, col: number) => {
-    if (!gameState || gameOverPhase) return;
+    if (!gameState || gameOverPhase || messagePhase) return;
     if (memoMode) {
       // Select the tile for memo marking
       if (gameState.board[row][col].flipped) return;
@@ -66,14 +86,15 @@ function App() {
       const result = await gameService.flipTile(row, col);
       const newState = await gameService.getGameState();
       setGameState(newState);
+      
       if (result.game_over) {
-        setError('Game Over! You hit a Voltorb! Click anywhere to reveal all tiles.');
-        setGameOverPhase('reveal');
+        setError('Oh no, you get 0 coins');
+        setMessagePhase('lose1');
         return;
       }
       if (result.game_won) {
-        setError('Congratulations! You won! Click anywhere to reveal all tiles.');
-        setGameOverPhase('reveal');
+        setError(`Level Cleared! You earned ${newState.coins_earned_this_level} coins`);
+        setMessagePhase('win1');
         return;
       }
     } catch (err) {
@@ -102,21 +123,65 @@ function App() {
     });
   };
 
-  // Handler for post-game-over clicks
+  // Handler for post-game-over and message phase clicks
   const handleAppClick = () => {
-    if (!gameState || !gameOverPhase) return
-    if (gameOverPhase === 'reveal') {
-      // Reveal all tiles
+    if (!gameState) return;
+
+    if (messagePhase === 'win1') {
+      // Reveal all tiles before showing second message
       const revealedState = {
         ...gameState,
         board: gameState.board.map(row => row.map(tile => ({ ...tile, flipped: true })))
       }
       setGameState(revealedState)
-      setError('Click anywhere to start a new game.')
-      setGameOverPhase('reset')
-    } else if (gameOverPhase === 'reset') {
+      setError(`Advancing to level ${gameState.level}`);
+      setMessagePhase('win2');
+      return;
+    }
+    
+    if (messagePhase === 'win2') {
+      setError(null);
+      setMessagePhase(null);
+      startNewGame();
+      return;
+    }
+    
+    if (messagePhase === 'lose1') {
+      // Reveal all tiles before showing second message
+      const revealedState = {
+        ...gameState,
+        board: gameState.board.map(row => row.map(tile => ({ ...tile, flipped: true })))
+      }
+      setGameState(revealedState)
+      setError(`Dropped to level ${gameState.level}`);
+      setMessagePhase('lose2');
+      return;
+    }
+    
+    if (messagePhase === 'lose2') {
+      setError(null);
+      setMessagePhase(null);
+      startNewGame();
+      return;
+    }
+
+    if (!gameOverPhase) return;
+    
+    if (gameOverPhase === 'reset') {
       startNewGame()
     }
+  }
+
+  if (celebration.show) {
+    return (
+      <CelebrationModal
+        message={celebration.message}
+        onPlayAgain={() => {
+          setCelebration({ show: false, message: '' });
+          startNewGame();
+        }}
+      />
+    );
   }
 
   if (isLoading) {
@@ -148,25 +213,25 @@ function App() {
     )
   }
 
-  // If in game over phase, overlay a click handler
-  const appProps = gameOverPhase ? { onClick: handleAppClick, style: { cursor: 'pointer' } } : {}
+  // If in game over phase or message phase, overlay a click handler
+  const appProps = (gameOverPhase || messagePhase) ? { onClick: handleAppClick, style: { cursor: 'pointer' } } : {}
 
   return (
     <div className="app" {...appProps}>
       <div className="top-info">
         <div className="info-box">Level: {gameState.level}</div>
         <div className="info-box">Total Coins: {String(gameState.coins).padStart(6, '0')}</div>
-        <div className="info-box">Coins collected this Level: {String(gameState.coins).padStart(6, '0')}</div>
+        <div className="info-box">Coins collected this Level: {String(gameState.coins_earned_this_level).padStart(6, '0')}</div>
       </div>
-      {/* Only show error at the top if not in gameOverPhase */}
-      {error && !gameOverPhase && <div className="error">{error}</div>}
+      {/* Only show error at the top if not in gameOverPhase or messagePhase */}
+      {error && !gameOverPhase && !messagePhase && <div className="error">{error}</div>}
       <div className="main-content-row">
         <GameBoard
           board={gameState.board}
           rowTotals={gameState.row_totals}
           columnTotals={gameState.column_totals}
           onTileClick={handleTileClick}
-          disabled={!!gameOverPhase}
+          disabled={!!gameOverPhase || !!messagePhase}
           memoMode={memoMode}
           memoData={memoData}
           selectedTile={memoMode ? selectedTile : null}
@@ -216,8 +281,8 @@ function App() {
           )}
         </div>
       </div>
-      {/* Centered overlay for game over/win message */}
-      {gameOverPhase && error && (
+      {/* Centered overlay for game over/win/messagePhase message */}
+      {(gameOverPhase || messagePhase) && error && (
         <div className="gameover-overlay">
           <div className="gameover-message">{error}</div>
         </div>

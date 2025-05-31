@@ -3,6 +3,7 @@ const API_BASE_URL = 'http://localhost:8000';
 interface GameState {
   level: number;
   coins: number;
+  coins_earned_this_level: number;
   consecutive_wins: number;
   board: Array<Array<{
     value: number;

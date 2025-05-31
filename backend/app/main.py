@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from .game.board import Board
 from .game.level import Level
+import logging
 
 app = FastAPI()
 
@@ -20,12 +21,15 @@ app.add_middleware(
 current_board: Optional[Board] = None
 current_level = 1
 coins = 0
+coins_earned_this_level = 0
 consecutive_wins = 0
 flipped_cards_in_current_game = 0
+MAX_COINS = 50000
 
 class GameState(BaseModel):
     level: int
     coins: int
+    coins_earned_this_level: int
     consecutive_wins: int
     flipped_cards: int
     board: List[List[dict]]
@@ -34,9 +38,44 @@ class GameState(BaseModel):
 
 @app.post("/game/new")
 async def new_game():
-    global current_board, current_level, coins, consecutive_wins, flipped_cards_in_current_game
-    current_board = Board(current_level)
+    global current_board, current_level, coins, coins_earned_this_level, consecutive_wins, flipped_cards_in_current_game
+    
+    # Check if player has max coins
+    if coins >= MAX_COINS:
+        # Reset all state and return a special message
+        coins = 0
+        coins_earned_this_level = 0
+        consecutive_wins = 0
+        flipped_cards_in_current_game = 0
+        current_level = 1
+        current_board = Board(current_level)
+        return {"message": "Congratulations! You reached 50,000 coins! The game has been reset. Play again and try to beat your record!", "reset": True}
+    
+    # Clamp current_level to 1-8
+    if current_level < 1 or current_level > 8:
+        current_level = 1
+    try:
+        current_board = Board(current_level)
+    except Exception as e:
+        logging.error(f"Board creation failed at level {current_level}: {e}")
+        # If board creation fails, reset to level 1 and try again
+        current_level = 1
+        try:
+            current_board = Board(current_level)
+        except Exception as e2:
+            logging.error(f"Board creation failed again at level 1: {e2}")
+            # Reset all state and try one last time
+            coins = 0
+            coins_earned_this_level = 0
+            consecutive_wins = 0
+            flipped_cards_in_current_game = 0
+            try:
+                current_board = Board(1)
+            except Exception as e3:
+                logging.critical(f"Board creation failed after full reset: {e3}")
+                raise HTTPException(status_code=500, detail="Critical error: Unable to create a new board. Please try refreshing or restarting the server.")
     flipped_cards_in_current_game = 0
+    coins_earned_this_level = 0
     return await get_game_state()
 
 @app.get("/game/state")
@@ -47,6 +86,7 @@ async def get_game_state():
     return GameState(
         level=current_level,
         coins=coins,
+        coins_earned_this_level=coins_earned_this_level,
         consecutive_wins=consecutive_wins,
         flipped_cards=flipped_cards_in_current_game,
         board=[[{"value": tile.value, "flipped": tile.flipped} for tile in row] for row in current_board.tiles],
@@ -56,7 +96,7 @@ async def get_game_state():
 
 @app.post("/game/flip/{row}/{col}")
 async def flip_tile(row: int, col: int):
-    global current_board, current_level, coins, consecutive_wins, flipped_cards_in_current_game
+    global current_board, current_level, coins, coins_earned_this_level, consecutive_wins, flipped_cards_in_current_game
     
     if not current_board:
         raise HTTPException(status_code=400, detail="No active game")
@@ -73,21 +113,28 @@ async def flip_tile(row: int, col: int):
     
     if value == -1:  # Voltorb
         # Game over - drop level based on flipped cards
-        new_level = min(flipped_cards_in_current_game, current_level)
-        if new_level < current_level:
-            current_level = new_level
+        if flipped_cards_in_current_game <= 2:
+            current_level = max(1, current_level - 1)  # Drop one level if few cards flipped
+        else:
+            current_level = max(1, current_level - 2)  # Drop two levels if many cards flipped
         consecutive_wins = 0
+        coins_earned_this_level = 0
         return {"game_over": True, "value": value, "new_level": current_level}
     
     # Update coins based on multiplier
-    if coins == 0:
-        coins = value
+    if coins_earned_this_level == 0:
+        coins_earned_this_level = value
     else:
-        coins *= value
+        coins_earned_this_level *= value
     
     # Check for win condition
     if current_board.check_if_game_won():
         consecutive_wins += 1
+        # Add level coins to total coins when level is won
+        coins += coins_earned_this_level
+        # Ensure coins don't exceed maximum
+        coins = min(coins, MAX_COINS)
+        # Check for level 8 progression
         if consecutive_wins >= 5 and flipped_cards_in_current_game >= 8:
             current_level = 8
         elif current_level < 8:
@@ -98,15 +145,28 @@ async def flip_tile(row: int, col: int):
 
 @app.post("/game/quit")
 async def quit_game():
-    global current_board, current_level, consecutive_wins, flipped_cards_in_current_game
+    global current_board, current_level, consecutive_wins, flipped_cards_in_current_game, coins_earned_this_level
     
     if not current_board:
         raise HTTPException(status_code=400, detail="No active game")
     
     # Drop level based on flipped cards
-    new_level = min(flipped_cards_in_current_game, current_level)
-    if new_level < current_level:
-        current_level = new_level
+    if flipped_cards_in_current_game <= 2:
+        current_level = max(1, current_level - 1)  # Drop one level if few cards flipped
+    else:
+        current_level = max(1, current_level - 2)  # Drop two levels if many cards flipped
     consecutive_wins = 0
+    coins_earned_this_level = 0
     
-    return {"new_level": current_level} 
+    return {"new_level": current_level}
+
+@app.post("/game/reset")
+async def reset_game():
+    global current_board, current_level, coins, coins_earned_this_level, consecutive_wins, flipped_cards_in_current_game
+    current_board = None
+    current_level = 1
+    coins = 0
+    coins_earned_this_level = 0
+    consecutive_wins = 0
+    flipped_cards_in_current_game = 0
+    return {"message": "Game reset to level 1"} 

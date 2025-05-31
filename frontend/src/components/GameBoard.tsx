@@ -51,7 +51,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, o
   // Helper for tile content
   const getTileContent = (tile: Tile) => {
     if (!tile.flipped) return '?';
-    if (tile.value === -1) return <div className="voltorb-pixel-ball" />;
+    if (tile.value === -1) return <img src={voltorbImg} alt="Voltorb" className="voltorb-img" />;
     return tile.value;
   };
 

@@ -11,6 +11,7 @@ class Board:
         self.total_multipliers = 0
         self.flipped_multipliers_2x = 0
         self.flipped_multipliers_3x = 0
+        self.flipped_multipliers_1x = 0
         self.row_voltorb_totals = [0] * self.size
         self.column_voltorb_totals = [0] * self.size
         self.row_point_totals = [0] * self.size
@@ -73,7 +74,9 @@ class Board:
         tile = self.tiles[row][col]
         if not tile.flipped:
             tile.flip()
-            if tile.value == 2:
+            if tile.value == 1:
+                self.flipped_multipliers_1x += 1
+            elif tile.value == 2:
                 self.flipped_multipliers_2x += 1
             elif tile.value == 3:
                 self.flipped_multipliers_3x += 1
@@ -84,6 +87,10 @@ class Board:
         required_2x, required_3x = self.level.get_multiplier_counts()
         return (self.flipped_multipliers_2x == required_2x and
                 self.flipped_multipliers_3x == required_3x)
+
+    def get_total_flipped_multipliers(self):
+        """Get the total number of flipped multiplier cards (including 1x)."""
+        return self.flipped_multipliers_1x + self.flipped_multipliers_2x + self.flipped_multipliers_3x
 
     def is_row_dead(self, row):
         """Check if a row is 'dead' (contains only 1x multipliers and Voltorbs)."""
