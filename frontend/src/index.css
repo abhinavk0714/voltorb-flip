@@ -6,10 +6,13 @@
   background-color: #ffffff;
 }
 
-body {
+html, body {
+  height: 100%;
+  width: 100%;
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  background: #4caf72;
 }
 
 button {

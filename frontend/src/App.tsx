@@ -40,6 +40,7 @@ function App() {
   const [selectedMemoMarks, setSelectedMemoMarks] = useState<MemoMark[]>([]);
   const [selectedTile, setSelectedTile] = useState<{ row: number; col: number } | null>(null);
   const [celebration, setCelebration] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
+  const [showRules, setShowRules] = useState(false);
 
   useEffect(() => {
     startNewGame()
@@ -279,12 +280,29 @@ function App() {
               <button className="memo-marker-btn" tabIndex={-1} aria-hidden="true" />
             </div>
           )}
+          <button
+            className="rules-button"
+            onClick={() => setShowRules(true)}
+          >
+            Rules & About
+          </button>
         </div>
       </div>
       {/* Centered overlay for game over/win/messagePhase message */}
       {(gameOverPhase || messagePhase) && error && (
         <div className="gameover-overlay">
           <div className="gameover-message">{error}</div>
+        </div>
+      )}
+      {/* Rules modal */}
+      {showRules && (
+        <div className="rules-overlay" onClick={() => setShowRules(false)}>
+          <div className="rules-content" onClick={e => e.stopPropagation()}>
+            <h2>About Voltorb Flip</h2>
+            <p>This is a recreation of the Voltorb Flip game that appears in the Korean and Western releases of Pokémon HeartGold and SoulSilver. The game is a mix between Minesweeper and Picture Cross and the placement of the bombs are given for each row and column. The goal of the game is to uncover all of the 2 and 3 tiles on a given board and move up to higher levels which have higher coin totals.</p>
+            <p>The numbers on the side and bottom of the game board denote the sum of the tiles and how many bombs are present in that row/column, respectively. Each tile you flip multiplies your collected coins by that value. Once you uncover all of the 2 and 3 tiles, all of the coins you gained this level will be added to your total and you'll go up one level to a max of 7. If you flip over a Voltorb, you lose all your coins from the current level and risk going down to a lower level.</p>
+            <p>More about this project and the source code is available on <a href="https://github.com/abhinavk0714/voltorb-flip" target="_blank" rel="noopener noreferrer">my GitHub</a>. This project was highly inspired by <a href="https://www.brandonstein.com/projects/voltorbflip" target="_blank" rel="noopener noreferrer">Brandon Stein's version</a> of this minigame. I do not claim to own any of the assets used on this website, including the Voltorb sprite, or the Voltorb Flip game itself. Enjoy!</p>
+          </div>
         </div>
       )}
     </div>
