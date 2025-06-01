@@ -14,7 +14,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",  # Local development
         "http://localhost:5174",  # Alternative local port
-        "https://voltorb-flip-murex.vercel.app/",  # Production frontend
+        "https://voltorb-flip-murex.vercel.app",  # Production frontend
+        "https://voltorb-flip-aqfdkjwsx-abhinavs-projects-2383d1e2.vercel.app",  # New Vercel deployment
     ],
     allow_credentials=True,
     allow_methods=["*"],
