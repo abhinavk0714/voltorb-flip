@@ -1,0 +1,480 @@
+.board-outer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #4caf72;
+  border-radius: 16px;
+  padding: 32px 48px 48px 48px;
+  /* box-shadow: 0 2px 12px rgba(0,0,0,0.07); */
+  min-width: 160px;
+  max-width: 400px;
+}
+
+.board-center-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.board-grid-and-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-board-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.board-row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.row-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 4px;
+  margin-top: 0;
+}
+
+.bottom-totals-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-top: 4px;
+}
+
+.column-totals {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  margin: 0;
+}
+
+.total-cell, .tile {
+  width: 90px;
+  height: 90px;
+  border: 2px solid #222;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 32px;
+  flex-shrink: 0;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  background-clip: padding-box;
+  box-sizing: border-box;
+}
+
+.total-cell {
+  margin: 0;
+}
+
+.total-cell.orange { background: #e5734a; color: #222; }
+.total-cell.green { background: #aee571; color: #222; }
+.total-cell.yellow { background: #ffe082; color: #222; }
+.total-cell.blue { background: #64b5f6; color: #222; }
+.total-cell.purple { background: #b39ddb; color: #222; }
+
+.right-total {
+  margin-left: 0;
+}
+
+.bottom-total {
+  margin-top: 0;
+}
+
+.points {
+  font-weight: bold;
+  color: #222;
+  font-size: 28px;
+}
+
+.voltorbs {
+  color: #222;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.voltorbs .voltorb-img {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.tile {
+  background: url('/blanktile.svg');
+  background-size: cover;
+  color: transparent;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.tile:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.tile:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.tile.voltorb {
+  background: #fff;
+  border: 2px solid #e57373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voltorb-img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  background: #fbc02d;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.tile.value-1, .tile.value-2, .tile.value-3 {
+  background-color: #ffb6c1;
+  border: 2px solid #222;
+  box-sizing: border-box;
+  color: #000;
+}
+
+.tile.flipped {
+  background: #ffb6c1 !important;
+  border: 2px solid #222 !important;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+  color: #000;
+  background-image: none !important;
+}
+
+.tile-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.tile-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.tile-front, .tile-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  border-radius: 8px;
+}
+
+.tile-front {
+  background: url('/blanktile.svg');
+  background-size: cover;
+}
+
+.tile-back {
+  background: transparent;
+  color: #000;
+  transform: rotateY(180deg);
+  border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+
+.tile:not(.flipped) .tile-front {
+  color: transparent;
+}
+
+/* Ensure .flipped class on .tile still works for accessibility */
+.flipped {
+  background: none !important;
+  color: #000 !important;
+}
+
+.info-box {
+  font-size: 1.3rem;
+}
+
+.game-board-disabled .tile {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.7;
+}
+
+.game-board-disabled .tile:hover {
+  background-color: inherit;
+}
+
+/* Memo marks styling */
+.memo-marks {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  padding: 4px;
+  box-sizing: border-box;
+  place-items: center;
+}
+
+.memo-voltorb {
+  font-size: 1.2rem;
+  color: #e74c3c;
+  user-select: none;
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.memo-voltorb-img {
+  width: 24px !important;
+  height: 24px !important;
+  display: block;
+  background: #fbc02d;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.memo-num {
+  font-size: 1.1rem;
+  font-weight: bold;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memo-num-yellow {
+  color: #fbc02d;
+}
+
+.memo-top-left {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.memo-top-right {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.memo-bottom-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.memo-bottom-right {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Memo controls styling */
+.memo-controls {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.memo-toggle-button {
+  background: #fff;
+  color: #222;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.memo-toggle-button.active {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}
+
+.memo-dropdown {
+  position: relative;
+}
+
+.memo-dropdown-button {
+  background: #fff;
+  color: #222;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.memo-dropdown-button:hover {
+  background: #f5f5f5;
+}
+
+.memo-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 2px solid #1976d2;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.memo-menu-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.memo-menu-item:hover {
+  background: #f5f5f5;
+}
+
+.memo-menu-item.selected {
+  background: #e3f2fd;
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.tile-selected {
+  border: 3px solid #1976d2 !important;
+  box-shadow: 0 0 0 3px #90caf9;
+  z-index: 2;
+}
+
+.memo-marker-btn {
+  width: 60px;
+  height: 60px;
+  background: #ffe082;
+  border: 2px solid #fbc02d;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.memo-marker-btn img.memo-voltorb-img {
+  width: 24px !important;
+  height: 24px !important;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.voltorb-pixel-ball {
+  width: 32px;
+  height: 32px;
+  background: #fbc02d;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  image-rendering: pixelated;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .board-outer-container {
+    padding: 16px 4vw 24px 4vw;
+    max-width: 400px;
+    min-width: 0;
+    width: 96vw;
+    box-sizing: border-box;
+  }
+  .total-cell {
+    width: 38px;
+    height: 38px;
+    font-size: 0.8rem;
+    padding: 0 1px;
+    border-radius: 6px;
+  }
+  .points {
+    font-size: 1rem;
+  }
+  .voltorbs {
+    font-size: 0.85rem;
+    gap: 2px;
+  }
+  .voltorbs .voltorb-img {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  .tile-front {
+    background: url('/blanktile.svg');
+    background-size: cover;
+  }
+  .memo-voltorb {
+    font-size: 0.9rem;
+  }
+  .memo-voltorb-img {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .memo-num {
+    font-size: 0.9rem;
+  }
+  .voltorb-img {
+    width: 30px;
+    height: 30px;
+  }
+} 
