@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { quitGame } from '@/lib/gameStore';
 
 export async function POST() {
     try {
-        const response = await quitGame();
+        const cookieStore = await cookies();
+        const response = await quitGame(cookieStore);
         return NextResponse.json(response);
     } catch (error) {
         return NextResponse.json(

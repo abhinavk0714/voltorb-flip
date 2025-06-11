@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { getGameState } from '@/lib/gameStore';
 
 export async function GET() {
     try {
-        const state = getGameState();
+        const cookieStore = await cookies();
+        const state = getGameState(cookieStore);
         if (!state) {
             return NextResponse.json({ error: "No active game" }, { status: 404 });
         }

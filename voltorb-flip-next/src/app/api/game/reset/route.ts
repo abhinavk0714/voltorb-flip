@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { resetGame } from '@/lib/gameStore';
 
 export async function POST() {
     try {
-        const response = await resetGame();
+        const cookieStore = await cookies();
+        const response = await resetGame(cookieStore);
         return NextResponse.json(response);
     } catch (error) {
         return NextResponse.json(
