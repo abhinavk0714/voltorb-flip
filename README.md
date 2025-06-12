@@ -1,4 +1,4 @@
-# Voltorb Flip
+# Voltorb Flip (Next.js Edition)
 
 A modern, serverless web recreation of the Voltorb Flip minigame from Pokémon HeartGold & SoulSilver.
 

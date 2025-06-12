@@ -39,7 +39,6 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, o
     return <div>Loading board...</div>;
   }
 
-  // Helper for tile class
   const getTileClass = (tile: Tile) => {
     if (!tile.flipped) return 'tile';
     if (tile.value === -1) return 'tile voltorb flipped';
@@ -49,14 +48,12 @@ const GameBoard: React.FC<GameBoardProps> = ({ board, rowTotals, columnTotals, o
     return 'tile flipped';
   };
 
-  // Helper for tile content
   const getTileContent = (tile: Tile) => {
     if (!tile.flipped) return null;
     if (tile.value === -1) return <Image src="/voltorb.png" alt="Voltorb" width={20} height={20} className="voltorb-img" />;
     return tile.value;
   };
 
-  // Helper for memo mark rendering
   const renderMemoMarks = (rowIdx: number, colIdx: number) => {
     if (!memoData || !memoData[rowIdx]) return null;
     const marks = memoData[rowIdx][colIdx];

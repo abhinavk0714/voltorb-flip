@@ -7,7 +7,6 @@ interface CelebrationModalProps {
 }
 
 const CelebrationModal: React.FC<CelebrationModalProps> = ({ message, onPlayAgain }) => {
-  // Get window size for confetti
   const [dimensions, setDimensions] = React.useState({ width: window.innerWidth, height: window.innerHeight });
   React.useEffect(() => {
     const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight });
